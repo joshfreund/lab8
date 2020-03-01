@@ -310,7 +310,9 @@ module MakeBestInterval (Endpoint : ORDERED_TYPE) : (INTERVAL with type endpoint
       | _, Empty | Empty, _ -> Empty
       | Interval (low1, high1), Interval (low2, high2) ->         
         let (_, low), (high, _)  = ordered low1 low2, ordered high1 high2 in              create low high ;;
-            
+    end ;;
+
+
 (* We now have a fully functioning functor that can create interval
 modules of whatever type we want, with the appropriate abstraction
 level.
