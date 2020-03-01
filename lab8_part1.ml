@@ -335,7 +335,7 @@ module IntBestInterval =
     MakeBestInterval (struct
         type t = int
         let compare = Stdlib.compare
-    end ;;
+    end) ;;
 
 
 

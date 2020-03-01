@@ -140,7 +140,7 @@ module IntStack =
         (struct
             type t = int
             let serialize = string_of_int
-        end ;;
+        end) ;;
 
 (*......................................................................
 Exercise 1C: Make a module `IntStringStack` that creates a stack whose
