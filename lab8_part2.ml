@@ -92,6 +92,7 @@ specified by the signature if you would like. The module signature
 will act as an absrtaction barrier to prevent the extra functions from
 leaking out of the module.)
 ......................................................................*)
+open List ;; 
 
 module MakeStack (Element: SERIALIZE) : (STACK with type element = Element.t) =
   struct
@@ -103,28 +104,28 @@ module MakeStack (Element: SERIALIZE) : (STACK with type element = Element.t) =
     let empty : stack = []
 
     let push (el : element) (s : stack) : stack =
-      failwith "push not implemented"
+      el :: s
 
     let pop_helper (s : stack) : (element * stack) =
-      failwith "pop_helper not implemented"
+      try hd s, tl s with _ -> raise Empty
 
     let top (s : stack) : element =
-      failwith "top not implemented"
+      try List.hd s with _ -> raise Empty
 
     let pop (s : stack) : stack =
-      failwith "pop not implemented"
+      try tl s with _ -> raise Empty
 
     let map (f : element -> element) (s : stack) : stack =
-      failwith "map not implemented"
+      map f s 
 
     let filter (f : element -> bool) (s : stack) : stack =
-      failwith "filter not implemented"
+      filter f s
 
     let fold_left (f : 'a -> element -> 'a) (init : 'a) (s : stack) : 'a =
-      failwith "fold_left not implemented"
+      fold_left f init s 
 
     let serialize (s : stack) : string =
-      failwith "serialize not implemented"
+      fold_right  ()
   end ;;
 
 (*......................................................................
