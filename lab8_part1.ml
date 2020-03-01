@@ -285,32 +285,48 @@ module satisfying INTERVAL *with appropriate sharing constraints
 to allow the creation of generic interval modules*.
 ......................................................................*)
 
-module MakeBestInterval (Endpoint : ORDERED_TYPE) : (INTERVAL with type endpoint = Endpoint.t) = 
-    struct
-    type interval =
-      | Interval of Endpoint.t * Endpoint.t
-      | Empty
-
+module MakeBestInterval (Endpoint : ORDERED_TYPE)
+                      : (INTERVAL with type endpoint = Endpoint.t) = 
+  struct
     type endpoint = Endpoint.t
+    type interval = | Interval of endpoint * endpoint
+                    | Empty
 
+    (* create low high -- Returns a new interval covering `low` to
+       `high` inclusive. If `low` > `high`, then the interval is
+       empty. *)
     let create (low : endpoint) (high : endpoint) : interval =
-      if Endpoint.compare low high < 0 then Interval (low, high) else Empty 
+      if Endpoint.compare low high > 0 then Empty
+      else Interval (low, high)
 
+    (* is_empty intvl -- Returns true if and only if the `intvl` is
+       empty *)
     let is_empty (intvl : interval) : bool =
-      intvl = Empty
-
-    let contains (intvl : interval) (x : endpoint) : bool =
       match intvl with
-        | Empty -> false 
-        | Interval (a, b) -> Endpoint.compare x b <= 0 
-                             && Endpoint.compare x a >= 0 
+      | Empty -> true
+      | Interval _ -> false
 
+    (* contains intvl x -- Returns true if and only if the value `x`
+       is contained within `intvl` *)
+    let contains (intvl : interval) (x : Endpoint.t) : bool =
+      match intvl with
+      | Empty -> false
+      | Interval (low, high) ->
+         Endpoint.compare x low >= 0
+         && Endpoint.compare x high <= 0
+
+    (* intersect intvl1 intvl2 -- Returns the intersection of the two
+       input intervals *)
     let intersect (intvl1 : interval) (intvl2 : interval) : interval =
+      let ordered x y = if Endpoint.compare x y <= 0 then x, y else y, x in
       match intvl1, intvl2 with
-      | _, Empty | Empty, _ -> Empty
-      | Interval (low1, high1), Interval (low2, high2) ->         
-        let (_, low), (high, _)  = ordered low1 low2, ordered high1 high2 in              create low high ;;
-    end ;;
+      | Empty, _
+      | _, Empty -> Empty
+      | Interval (low1, high1), Interval (low2, high2) ->
+         let (_, low), (high, _)  = ordered low1 low2, ordered high1 high2 in
+         create low high
+  end
+;;
 
 
 (* We now have a fully functioning functor that can create interval

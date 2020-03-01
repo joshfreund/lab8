@@ -95,7 +95,6 @@ leaking out of the module.)
  
 module MakeStack (Element: SERIALIZE) : (STACK with type element = Element.t) =
   struct
-    open List
     exception Empty
 
     type element = Element.t
@@ -107,28 +106,30 @@ module MakeStack (Element: SERIALIZE) : (STACK with type element = Element.t) =
       el :: s
 
     let pop_helper (s : stack) : (element * stack) =
-      try hd s, tl s with _ -> raise Empty
+      match s with
+      | [] -> raise Empty
+      | h :: t -> (h, t)
 
     let top (s : stack) : element =
-      try hd s with _ -> raise Empty
+      fst (pop_helper s)
 
     let pop (s : stack) : stack =
-      try tl s with _ -> raise Empty
+      snd (pop_helper s)
 
     let map : (element -> element) -> stack -> stack =
-      map
+      List.map
 
     let filter : (element -> bool) -> stack -> stack =
-      filter
+      List.filter
 
     let fold_left : ('a -> element -> 'a) -> 'a -> stack -> 'a =
-      fold_left
+      List.fold_left
 
     let serialize (s : stack) : string =
-        let string_join x y = Element.serialize y                  
-                              ^ (if x <> "" then ":" ^ x else "") in      
-        fold_left string_join "" s 
-    end ;;
+      let string_join x y = Element.serialize y
+                  ^ (if x <> "" then ":" ^ x else "") in
+      fold_left string_join "" s
+  end ;;
 
 (*......................................................................
 Exercise 1B: Now, make a module `IntStack` by applying the functor
